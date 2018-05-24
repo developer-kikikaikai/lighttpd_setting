@@ -1,0 +1,12 @@
+## This is setting of lighttpd root dir
+
+I check running by lighttpd 1.4.48.
+The following option is to run foreground
+
+```
+$sudo /usr/local/sbin/lighttpd -f $rootdor/conf/lighttpd.conf -D
+```
+
+## Note
+
+conf/conf.d and html/index.html are default of lighttpd.
