@@ -4,8 +4,10 @@ I check running by lighttpd 1.4.48.
 The following option is to run foreground
 
 ```
-$sudo /usr/local/sbin/lighttpd -f $rootdor/conf/lighttpd.conf -D
+$sudo /usr/local/sbin/lighttpd -f $rootdor/conf/lighttpd.conf -D -m /usr/local/www/modules
 ```
+
+*Please copy plugins to /usr/local/www/modules
 
 ## Note
 
