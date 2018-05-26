@@ -9,6 +9,26 @@ $sudo /usr/local/sbin/lighttpd -f $rootdor/conf/lighttpd.conf -D -m /usr/local/w
 
 *Please copy plugins to /usr/local/www/modules
 
+## How to build plugins?
+
+1. Modify plugin/lightttpd_setting, LIGHTTPD_PATH=/path/to/your environment src/
+2. make in mod_loopcgi ans mod_loopcgi_fd
+3. copy maked libraries to /usr/local/www/modules
+
+#### 
+   /loopcgi?cgi=cginame[&interval=sec][&count=count_number]
+
+  URL: /loopcgi
+
+|query|detail|other|
+|:---|:---|:---|
+|**cgi**|name of cgi|it's must parameter|
+|**interval**|set interval of calling cgi (sec) |default 1 sec|
+|**count**|count of calling cgi time (number) |default is endress|
+
+   mod_loopcgi -- use sleep in uri_handler, so lighttpd is blocked
+   mod_loopcgi_fd -- use fdevent.
+
 ## Note
 
 conf/conf.d and html/index.html are default of lighttpd.
