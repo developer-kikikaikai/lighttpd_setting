@@ -79,7 +79,6 @@ static void mod_loopcgi_request_info_free(mod_loopcgi_request_info_t * req_info)
 typedef struct {
 	PLUGIN_DATA;
 	plugin_config conf;
-	buffer * accept_uri;
 	mod_loopcgi_request_info_t request_info;
 } plugin_data;
 
