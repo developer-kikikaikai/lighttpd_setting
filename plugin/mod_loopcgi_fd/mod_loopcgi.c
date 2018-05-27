@@ -6,6 +6,9 @@
 #include "plugin.h"
 #include "fdevent.h"
 #include "joblist.h"
+#include "response.h"
+#include "http_chunk.h"
+#include "chunk.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -68,14 +71,14 @@ typedef struct mod_loopcgi_request_info_t {
 /* @{ */
 static LOOPCGI_CON_INFO mod_loopcgi_con_info_new(server *srv, connection *con, mod_loopcgi_req_setting_t *req_setting);
 static void mod_loopcgi_con_info_free(LOOPCGI_CON_INFO this, server *srv);
-static int mod_loopcgi_con_info_call_once(LOOPCGI_CON_INFO this, connection *con);
+static int mod_loopcgi_con_info_call_once(LOOPCGI_CON_INFO this, server *srv, connection *con);
 //main API to call command
 static handler_t mod_loopcgi_con_info_callevent(struct server *srv, void *ctx, int revents);
 
 //set timer to use fdevent HANDLER_WAIT_FOR_EVENT
 static void mod_loopcgi_con_info_starttimer(LOOPCGI_CON_INFO this);
 static void mod_loopcgi_con_info_stoptimer(LOOPCGI_CON_INFO this);
-static handler_t mod_loopcgi_con_info_start(LOOPCGI_CON_INFO this, connection *con);
+static handler_t mod_loopcgi_con_info_start(LOOPCGI_CON_INFO this, server *srv, connection *con);
 
 /* @} */
 
@@ -120,6 +123,7 @@ static inline int mod_loopcgi_is_ownreq( buffer * req_uri, const char * accept_u
 static inline handler_t mod_loopcgi_failed(connection *con, int http_status);
 static inline handler_t mod_loopcgi_finished(connection *con, int http_status);
 static inline handler_t mod_loopcgi_wait_event(connection *con);
+static void mod_loopcgi_append_end_of_chunk(connection *con);
 
 //for this plugin
 static int mod_loopcgi_set_command(plugin_config *conf,  const char *cginame, mod_loopcgi_req_setting_t * setting);
@@ -210,7 +214,7 @@ static void mod_loopcgi_con_info_free(LOOPCGI_CON_INFO this, server *srv) {
 	free(this);
 }
 
-static int mod_loopcgi_con_info_call_once(LOOPCGI_CON_INFO this, connection *con) {
+static int mod_loopcgi_con_info_call_once(LOOPCGI_CON_INFO this, server *srv, connection *con) {
 	FILE * fp = popen(this->setting.command, "r");
 	int ret=-1;
 
@@ -222,12 +226,13 @@ static int mod_loopcgi_con_info_call_once(LOOPCGI_CON_INFO this, connection *con
 	char result_buf[256]={0};
 	char * result;
 	while(fgets(result_buf, sizeof(result_buf), fp) != NULL) {
+		DEBUG_ERRPRINT("result_buf:%s(%d)\n", result_buf, (int)strlen(result_buf));
 		buffer_append_string_len(b, result_buf, strlen(result_buf));
 	}
 
 	//if there is a response, add information to chunk
 	if(!buffer_is_empty(b)) {
-		chunkqueue_append_buffer(con->write_queue, b);
+		http_chunk_append_buffer(srv, con, b);
 		ret = 0;
 	}
 
@@ -251,17 +256,23 @@ ENTERLOG
 		read(this->timerfd, &buffer, sizeof(buffer));
 	}
 
-	if(mod_loopcgi_con_info_call_once(this, this->con)) {
+	//To go next loop, I have to add joblist_append
+	joblist_append(srv, this->con);
+
+	if(mod_loopcgi_con_info_call_once(this, srv, this->con)) {
 		//failed to call
-		if(srv) joblist_append(srv, this->con);
+		DEBUG_ERRPRINT("call command error\n");
 		return mod_loopcgi_failed(this->con, 500);
 	}
 
 	if(mod_loopcgi_con_info_is_finished(this)) {
 		mod_loopcgi_con_info_stoptimer(this);
-		if(srv) joblist_append(srv, this->con);
+		//add 0 buffer to end of chunk
+		mod_loopcgi_append_end_of_chunk(this->con);
+
 		return mod_loopcgi_finished(this->con, 200);
 	} else {
+		DEBUG_ERRPRINT("wait next event\n");
 		return mod_loopcgi_wait_event(this->con);
 	}
 }
@@ -282,11 +293,11 @@ ENTERLOG
 	timerfd_settime(this->timerfd, 0, &timer, NULL);
 }
 
-static handler_t mod_loopcgi_con_info_start(LOOPCGI_CON_INFO this, connection *con) {
+static handler_t mod_loopcgi_con_info_start(LOOPCGI_CON_INFO this, server *srv, connection *con) {
 	//set transfer_encoding:chunked
-	con->response.transfer_encoding=HTTP_TRANSFER_ENCODING_CHUNKED;
-
-	handler_t response = mod_loopcgi_con_info_callevent(NULL, this, FDEVENT_OUT);
+	response_header_append(srv, con, CONST_STR_LEN("Transfer-Encoding"), CONST_STR_LEN("chunked"));
+	con->file_started=1;
+	handler_t response = mod_loopcgi_con_info_callevent(srv, this, FDEVENT_OUT);
 	if(response == HANDLER_WAIT_FOR_EVENT) mod_loopcgi_con_info_starttimer(this); 
 
 	return response;
@@ -368,7 +379,7 @@ static inline int mod_loopcgi_is_ownreq( buffer * req_uri, const char * accept_u
 static inline handler_t mod_loopcgi_failed(connection *con, int http_status) {
 	con->http_status = http_status;
 	con->mode = DIRECT;
-	return HANDLER_ERROR;
+	return HANDLER_FINISHED;
 }
 
 static inline handler_t mod_loopcgi_finished(connection *con, int http_status) {
@@ -378,8 +389,17 @@ static inline handler_t mod_loopcgi_finished(connection *con, int http_status) {
 }
 
 static inline handler_t mod_loopcgi_wait_event(connection *con) {
+	con->file_started=1;
 	con->file_finished = 0;
 	return HANDLER_WAIT_FOR_EVENT;
+}
+
+static void mod_loopcgi_append_end_of_chunk(connection *con) {
+	//add 0 buffer to end of chunk
+	buffer *b = buffer_init();
+	buffer_append_string_len(b, "0\r\n\r\n", strlen("0\r\n\r\n"));
+	chunkqueue_append_buffer(con->write_queue, b);
+	buffer_free(b);
 }
 
 static int mod_loopcgi_set_command(plugin_config *conf,  const char *cginame, mod_loopcgi_req_setting_t * setting) {
@@ -421,7 +441,7 @@ static int mod_loopcgi_set_command(plugin_config *conf,  const char *cginame, mo
 
 	char * result = fgets(setting->command, sizeof(setting->command), fp);
 	pclose(fp);
-	DEBUG_ERRPRINT("command: %s\n", setting->command);
+	DEBUG_ERRPRINT("use command:[%s]\n", setting->command);
 	return (result)?0:-1;
 }
 
@@ -553,7 +573,7 @@ ENTERLOG
 	mod_loopcgi_connection_push(&p->request_info, instance);
 
 	DEBUG_ERRPRINT("call command\n");
-	return mod_loopcgi_con_info_start(instance, con);
+	return mod_loopcgi_con_info_start(instance, srv, con);
 }
 
 REQUESTDONE_FUNC(mod_loopcgi_request_done) {

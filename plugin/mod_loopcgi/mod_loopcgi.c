@@ -214,9 +214,6 @@ static inline int mod_loopcgi_con_info_is_finished(LOOPCGI_CON_INFO this) {
 }
 
 static handler_t mod_loopcgi_con_info_start(LOOPCGI_CON_INFO this, connection *con) {
-	//set transfer_encoding:chunked
-	con->response.transfer_encoding=HTTP_TRANSFER_ENCODING_CHUNKED;
-
 	//loop calling command
 	while(1) {
 		if(mod_loopcgi_con_info_call_once(this, con)) {
@@ -310,7 +307,7 @@ static inline int mod_loopcgi_is_ownreq( buffer * req_uri, const char * accept_u
 static inline handler_t mod_loopcgi_failed(connection *con, int http_status) {
 	con->http_status = http_status;
 	con->mode = DIRECT;
-	return HANDLER_ERROR;
+	return HANDLER_FINISHED;
 }
 
 static inline handler_t mod_loopcgi_finished(connection *con, int http_status) {
@@ -358,7 +355,7 @@ static int mod_loopcgi_set_command(plugin_config *conf,  const char *cginame, mo
 
 	char * result = fgets(setting->command, sizeof(setting->command), fp);
 	pclose(fp);
-	DEBUG_ERRPRINT("command: %s\n", setting->command);
+	DEBUG_ERRPRINT("use command:[%s]\n", setting->command);
 	return (result)?0:-1;
 }
 
