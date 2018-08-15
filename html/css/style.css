@@ -1,0 +1,142 @@
+﻿@charset "utf-8"; /*文字コード指定*/
+
+/* ----- css reset(各ブラウザで指定されているスタイルを初期化)と全体設定 ----- */
+
+body, div, ul, h1, h2, form, input, p, th, td {
+	margin: 0; /*ボックス外側の余白(値1つは上下左右をまとめて指定)*/
+	padding: 0; /*ボックス内側の余白(値1つは上下左右をまとめて指定)*/
+	border: 0; /*境界線指定*/
+}
+
+body {
+	line-height: 2;	/*行の高さ指定(数値のみの場合はfont-sizeの倍数)*/
+	font-family: "メイリオ", Meiryo, "ＭＳ Ｐゴシック", Osaka, "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro"; /*フォントの種類指定(左から優先順位)*/
+	font-size: 100%; /* フォントサイズ指定(%はブラウザに設定した標準文字サイズ(通常16px)に対する値)*/
+	color: #333333; /*文字色指定*/
+}
+
+a { /*リンクの文字設定(マウスをのせる前)*/
+	color: #0000FF; /*文字色指定*/
+	text-decoration: none; /*テキストの装飾指定(下線、上線など)(noneはなし)*/
+}
+
+a:hover { /*リンクの文字設定(マウスをのせた時)*/
+	color: #C74B15; /*文字色指定*/
+	text-decoration: underline; /*テキストの装飾指定(下線、上線など)(underlineは下線を引く)*/
+}
+
+/* ----- ヘッダー(ページの一番上の部分) ----- */
+
+#header {
+	position: relative; /*ボックスの配置方法(relativeは相対位置配置)*/
+	height: 10vh ; /*領域の高さ指定*/
+	width: auto; /*幅指定(autoは初期値に戻す)*/
+	color: #ffffff; /*文字色指定*/
+	background-image: url(../images/header.png); /*背景画像指定　url(画像ファイルを指定)*/
+	background-repeat: repeat-x; /*背景画像の並べかた(repeat-xは横方向に繰り返し並べる)*/
+	filter: Alpha(opacity=80); /*視覚効果(IE独自) Alphaは透過表示 opacityは開始透明度*/
+	opacity: 0.8; /*要素の透明度*/
+}
+
+#header h1 {
+	position: absolute; /*ボックスの配置方法(absoluteは絶対位置配置)*/
+	left: 20px; /*右からの距離(positionで指定している場合に適用)*/
+	top: 10px; /*上からの距離(positionで指定している場合に適用)*/
+	font-size: 1.5em; /*フォントサイズ指定(emはフォントの高さを１とした相対指定)*/
+	font-weight: bold; /*フォントの太さ指定(normalは標準)*/
+}
+
+#logo {
+	position: absolute; /*ボックスの配置方法(absoluteは絶対位置配置)*/
+	right:20px; /*左からの距離(positionで指定している場合に適用)*/
+	top: 10px; /*上からの距離(positionで指定している場合に適用)*/
+	opacity: 0.8; /*要素の透明度*/
+}
+
+/* ----- レイアウト ----- */
+
+#main {
+	width: 100%; /*幅指定(100%は画面横幅いっぱいに表示)*/
+	float: left; /*要素を左か右に寄せて配置(leftは左に寄せる)*/
+}
+
+#content {
+	width: 100%; /*幅指定(100%は画面横幅いっぱいに表示)*/
+	float: right; /*要素を左か右に寄せて配置(rightは右に寄せる)*/
+	margin: 20px 0; /*ボックス外側の余白(値2つは左から上下,左右の値)*/
+	margin-left: -274px; /*ボックス外側左の余白*/
+}
+
+#content_inner {
+	margin-left: 274px; /*ボックス外側左の余白*/
+	margin-right: 10px; /*ボックス外側右の余白*/
+}
+
+#leftside {
+	width: 254px; /*幅指定*/
+	float: left; /*要素を左か右に寄せて配置(leftは左に寄せる)*/
+	margin: 20px 0; /*ボックス外側の余白(値2つは左から上下,左右の値)*/
+	padding-left: 20px; /*ボックス内側左の余白*/
+}
+
+/* ----- コンテンツ ----- */
+
+.post {
+	width: auto; /*幅指定(autoは初期値に戻す)*/
+	background: #ffffff; /*背景に関する指定をまとめて指定*/
+	margin-bottom: 10px; /*ボックス外側下の余白*/
+	height: 80vh; /*高さ、全体の80%の高さで表示*/
+	overflow: auto; /*固定画面内でスクロール出来るようにする。*/
+	border : solid 2px #333;/*周囲の枠線を有効にする。*/
+}
+
+.post pre {
+	padding-left: 20px; /*ボックス内側左の余白*/
+	font-size: 1.5em; /*フォントサイズ指定(emはフォントの高さを１とした相対指定)*/
+}
+
+/* ----- ページ左側の部分 ----- */
+
+table commandlists{
+	width: auto; /*幅指定(autoは初期値に戻す)*/
+	border-collapse:collapse;
+	border-bottom:double #ccc;
+}
+
+.commandlists td,th{
+	bordercolor: #ffffff;
+	border-collapse:collapse;
+	border-bottom:5px solid #ccc;
+}
+
+th{
+	font-size: 1.5em; /*フォントサイズ指定(emはフォントの高さを１とした相対指定)*/
+//	font-style: italic; /*フォントスタイル指定(italicは斜め文字)*/
+	padding: 10px; /*ボックス外側左の余白*/
+	bordercolor: #000000;
+	background:#e6f7ff;
+}
+
+td{
+	bordercolor: #ffffff;
+	color: #000000;
+	background:#e6f7ff;
+	padding-left: 10px;
+}
+
+td:hover{
+	bordercolor: #ffffff;
+	color: #000000;
+	font-weight: bold; /*フォントの太さ指定(normalは標準)*/
+	background:#e6f0ff;
+}
+
+label {
+	padding-left: 10px;
+	font-size: 100%; /* フォントサイズ指定(%はブラウザに設定した標準文字サイズ(通常16px)に対する値)*/
+}
+
+button {
+	padding-left: 10px;
+	font-size: 100%; /* フォントサイズ指定(%はブラウザに設定した標準文字サイズ(通常16px)に対する値)*/
+}
