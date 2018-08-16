@@ -14,7 +14,7 @@ module.exports = class CommandListView {
 				console.log($(this).text())
 				//インターバル取得
 				
-				var loopcount = document.getElementById('loopcount').value
+				var loopcount = Number(document.getElementById('loopcount').value)
 				cmd_callback($(this).text(), loopcount)
 				
 			});

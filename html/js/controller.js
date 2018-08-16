@@ -6,24 +6,27 @@ var view = new View();
 var loop_jqxhr = null;
 
 function loop_encoding_chunked (result) {
+	document.getElementById('response_data').innerHTML = result
 }
 
 function loop_success (result) {
 	document.getElementById('response_data').innerHTML = result
+	loop_jqxhr = null
 }
 
 function loop_failure (result) {
-	console.log("loop_failure " + result)
+	loop_clear()
 }
 
-function loop_clear() {
-	console.log("loop_clear")
-	if (loop_jqxhr !== null) {
+function loop_stop() {
+	if (loop_jqxhr != null) {
 		loop_jqxhr.abort();
 		loop_jqxhr = null
 	}
+}
 
-	console.log(document.getElementById('response_data').innerHTML)
+function loop_clear() {
+	loop_stop()
 	document.getElementById('response_data').textContent = ""
 }
 
@@ -32,11 +35,13 @@ function call_cmd(cmd, loopinterval) {
 	loop_clear()
 
 	//コマンド実行
-	console.log(cmd)
-	console.log(loopinterval)
-	loop_jqxhr = cgireq.loop(cmd, loopinterval);
-	loop_jqxhr.then(loop_success, loop_failure);
-	//loop_jqxhr.xhrFields = 
+	if ( loopinterval === 0 ) {
+		loop_jqxhr = cgireq.onshot(cmd);
+		loop_jqxhr.then(loop_success, loop_failure)
+	} else {
+		//loop再生
+		loop_jqxhr = cgireq.loopcgi(cmd, loopinterval, loop_encoding_chunked);
+	}
 }
 
 function command_list_success(result) {
@@ -51,4 +56,4 @@ function command_list_failure(result) {
 //コマンド一覧の追加
 cgireq.onshot('command_list.py').then(command_list_success, command_list_failure);
 //キャンセルイベントの追加
-view.add_stop_event(loop_clear)
+view.add_stop_event(loop_stop)
