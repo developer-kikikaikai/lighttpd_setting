@@ -1,5 +1,5 @@
 ﻿@charset "utf-8"; /*文字コード指定*/
-
+<style>
 /* ----- css reset(各ブラウザで指定されているスタイルを初期化)と全体設定 ----- */
 
 body, div, ul, h1, h2, form, input, p, th, td {
@@ -97,38 +97,40 @@ a:hover { /*リンクの文字設定(マウスをのせた時)*/
 
 /* ----- ページ左側の部分 ----- */
 
-table commandlists{
+table .commandlists{
 	width: auto; /*幅指定(autoは初期値に戻す)*/
 	border-collapse:collapse;
 	border-bottom:double #ccc;
 }
 
-.commandlists td,th{
+.commandlists td, th{
 	bordercolor: #ffffff;
 	border-collapse:collapse;
-	border-bottom:5px solid #ccc;
 }
 
-th{
+.commandlists_th{
 	font-size: 1.5em; /*フォントサイズ指定(emはフォントの高さを１とした相対指定)*/
 //	font-style: italic; /*フォントスタイル指定(italicは斜め文字)*/
 	padding: 10px; /*ボックス外側左の余白*/
 	bordercolor: #000000;
 	background:#e6f7ff;
+	border-bottom:5px solid #ccc;
 }
 
-td{
+.commandlists_td{
 	bordercolor: #ffffff;
 	color: #000000;
 	background:#e6f7ff;
 	padding-left: 10px;
+	border-bottom:1px solid #ccc;
 }
 
-td:hover{
+.commandlists_td:hover{
 	bordercolor: #ffffff;
 	color: #000000;
 	font-weight: bold; /*フォントの太さ指定(normalは標準)*/
 	background:#e6f0ff;
+	border-bottom:1px solid #ccc;
 }
 
 label {
@@ -140,3 +142,4 @@ button {
 	padding-left: 10px;
 	font-size: 100%; /* フォントサイズ指定(%はブラウザに設定した標準文字サイズ(通常16px)に対する値)*/
 }
+</style>

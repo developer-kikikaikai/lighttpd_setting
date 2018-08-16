@@ -8,7 +8,7 @@ var path = require('path');
 var server = http.createServer();
 
 //serverのtop directory定義
-var topdir = "/usr/local/www/"
+var topdir = "/home/htsuji/work/lsetting/"
 
 //mime type定義
 var mime = {
@@ -55,10 +55,11 @@ server.on('request', function (req, res) {
 
         //cgi実処理
         "cgi-bin": function (req_path) {
-            var command = req_path.split("/")[2]
+            var command = req_path.split("/")[2].split("?")[0]
+            var query_string = req_path.split("/")[2].split("?")[1]
             const execSync = require('child_process').execSync;
             //これはpython3.6で実行するcommand限定
-            var result =  execSync("cd " + topdir + "cgi-bin; python3.6 " + command).toString();
+            var result =  execSync("cd " + topdir + "cgi-bin; QUERY_STRING=\""+ query_string + "\" python3.6 " + command).toString();
             console.log(result)
             separate_head_body = result.split("\n\n")
             if ( separate_head_body.length === 1 ) {
@@ -104,7 +105,7 @@ server.on('request', function (req, res) {
         if ( ResArray.indexOf(uri_part[1]) === -1 ) {
             return "other"
         } else {
-            return uri_part[1]
+            return uri_part[1].split("?")[0]
         }
     }
 

@@ -4,6 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta http-equiv="Content-Style-Type" content="text/css" />
 <meta http-equiv="Content-Script-Tyoe" content="text/javascript" />
+<script type="text/javascript" src="bind.js"></script>
 <title>Server monitoring page</title>
 <link href="css/style.css" rel="stylesheet" type="text/css" />
 </head>
@@ -161,34 +162,34 @@ procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
       <table>
       <div id="commandlists" class="commandlists">
         <tr>
-        <th>cgi command</th>
+        <th class="commandlists_th">cgi command</th>
         </tr>
         <tr>
-        <td>cpu.py</td>
+        <td class="commandlists_td">cpu.py</td>
         </tr>
         <tr>
-        <td>help.py</td>
+        <td class="commandlists_td">help.py</td>
         </tr>
         <tr>
-        <td>loadavarage.py</td>
+        <td class="commandlists_td">loadavarage.py</td>
         </tr>
         <tr>
-        <td>memory.py</td>
+        <td class="commandlists_td">memory.py</td>
         </tr>
         <tr>
-        <td>run_process.py</td>
+        <td class="commandlists_td">run_process.py</td>
         </tr>
         <tr>
-        <td>setting.py</td>
+        <td class="commandlists_td">setting.py</td>
         </tr>
         <tr>
-        <td>show_query.py</td>
+        <td class="commandlists_td">show_query.py</td>
         </tr>
       </div>
       </table>
       <label for="uname">loop second:</label>
-      <input type="number" name="num1" min="0" max="60" value="0" step="1" required><br>
-      <button type="button">clear</button>
+      <input id="loopcount" type="number" name="num1" min="0" max="60" value="0" step="1" required><br>
+      <button id="loop_clear" type="button">clear</button>
     </div>
   <!-- / #main --></div>
 </body>
