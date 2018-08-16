@@ -11,9 +11,13 @@ module.exports = class CommandListView {
 			$('.commandlists').append(html);
 			//イベント設定
 			$(document).on('click', '[id="'+cmd_list[i]+'"]', function(){
-				console.log($(this).text())
-				//インターバル取得
 				
+				console.log($(this).text())
+				var cmd_title = document.getElementById('current_command')
+				cmd_title.textContent = $(this).text()
+				cmd_title.disabled = false
+				
+				//インターバル取得
 				var loopcount = Number(document.getElementById('loopcount').value)
 				cmd_callback($(this).text(), loopcount)
 				

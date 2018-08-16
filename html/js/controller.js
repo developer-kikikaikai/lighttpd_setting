@@ -28,6 +28,7 @@ function loop_stop() {
 function loop_clear() {
 	loop_stop()
 	document.getElementById('response_data').textContent = ""
+	document.getElementById('current_command').disabled = true
 }
 
 function call_cmd(cmd, loopinterval) {
