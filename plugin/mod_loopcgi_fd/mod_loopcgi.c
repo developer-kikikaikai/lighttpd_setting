@@ -295,7 +295,7 @@ ENTERLOG
 
 static handler_t mod_loopcgi_con_info_start(LOOPCGI_CON_INFO this, server *srv, connection *con) {
 	//set transfer_encoding:chunked
-	response_header_append(srv, con, CONST_STR_LEN("Transfer-Encoding"), CONST_STR_LEN("chunked"));
+	//response_header_append(srv, con, CONST_STR_LEN("Transfer-Encoding"), CONST_STR_LEN("chunked"));
 	con->file_started=1;
 	handler_t response = mod_loopcgi_con_info_callevent(srv, this, FDEVENT_OUT);
 	if(response == HANDLER_WAIT_FOR_EVENT) mod_loopcgi_con_info_starttimer(this); 
